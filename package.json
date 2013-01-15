@@ -1,0 +1,17 @@
+{
+  "private": true,
+  "name": "json-sorter",
+  "version": "0.0.0",
+  "description": "JSON.stringify() with sorting",
+  "main": "jsonsorter.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "",
+  "keywords": [
+    "json",
+    "sort"
+  ],
+  "author": "Florian Cargoët",
+  "license": "MIT"
+}

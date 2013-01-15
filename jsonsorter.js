@@ -1,0 +1,202 @@
+/*jshint node:true */
+
+/* TODO:
+ *   - tests
+ *   - options
+ */
+(function (exports) {
+    var options = {
+        pack_arrays   : true,
+        scalars_first : true,
+        align_colons  : true,
+        space_before_colon : ' ',
+        space_after_colon  : ' '
+    };
+
+    function sortedKeys(obj) {
+        var keys = Object.keys(obj);
+        if (options.scalars_first) {
+            var scalars = [], composed = [];
+            keys.sort().forEach(function (key) {
+                var type = Object.prototype.toString.call(obj[key]);
+                if (type === '[object Array]' || type === '[object Object]') {
+                    composed.push(key);
+                } else {
+                    scalars.push(key);
+                }
+            });
+            return scalars.concat(composed);
+        } else {
+            return keys.sort();
+        }
+    }
+
+    function stringify(value, replacer, space) {
+        // clean value with native JSON, apply replacer
+        value = JSON.parse(JSON.stringify(value, replacer));
+
+        if (space) {
+            if (typeof space === 'number') {
+                var nbSpace = space;
+                space = '';
+                for (var i = 0; i < nbSpace; i++) {
+                    space += ' ';
+                }
+            }
+            space = space.substr(0, 10);
+        } else {
+            space = '';
+        }
+
+        return stringifySorted(value, space, 0);
+    }
+
+    function stringifySorted(value, space, indentLevel) {
+        if (typeof value === 'object') {
+            // array
+            if (Object.prototype.toString.call(value) === '[object Array]') {
+                return stringifyArray(value, space, indentLevel);
+            }
+            // object
+            return stringifyObject(value, space, indentLevel);
+        }
+        return JSON.stringify(value, null, space);
+    }
+
+    function stringifyObject(obj, space, indentLevel) {
+        var keys = sortedKeys(obj);
+        if (keys.length === 0) {
+            return '{}';
+        }
+
+        var partial = [];
+        var colonPosition;
+        if (space && options.align_colons) {
+            colonPosition = 0;
+            keys.forEach(function (key) {
+                var type = Object.prototype.toString.call(obj[key]);
+                if (type === '[object Array]' || type === '[object Object]') {
+                    return;
+                }
+
+                key = quote(key);
+                if (key.length > colonPosition) {
+                    colonPosition = key.length;
+                }
+            });
+            colonPosition++;
+        } else {
+            colonPosition = 0; // disabled
+        }
+        keys.forEach(function (key) {
+            var value = obj[key];
+            key = quote(key);
+            var type = Object.prototype.toString.call(value);
+            if (type === '[object Array]' || type === '[object Object]') {
+                colonPosition = 0;
+            }
+            var colon = space ? makeColon(key.length, colonPosition) : ':';
+            partial.push(key + colon + stringifySorted(value, space, indentLevel + 1));
+        });
+        return format('{', partial, '}', space, indentLevel);
+    }
+
+    function makeColon(l, colonPosition) {
+        var before = '';
+        if (colonPosition === 0) {
+            before = ' ';
+        } else {
+            for (var i = l; i < colonPosition; i++) {
+                before += ' ';
+            }
+        }
+        return before + ':' + options.space_after_colon;
+    }
+
+    function stringifyArray(arr, space, indentLevel) {
+        if (arr.length === 0) {
+            return '[]';
+        }
+
+        var partial = [];
+        for (var i = 0, l = arr.length; i < l; i++) {
+            partial.push(stringifySorted(arr[i], space, indentLevel + (options.pack_arrays ? 0 : 1)));
+        }
+
+        if (options.pack_arrays) {
+            return  '[' + partial.join(', ') + ']';
+        } else {
+            return format('[', partial, ']', space, indentLevel);
+        }
+    }
+
+    function format(open, partial, close, space, indentLevel) {
+        var outerIndent = makeIndent(space, indentLevel);
+        var innerIndent = makeIndent(space, indentLevel + 1);
+        var nl = space ? '\n' : '';
+        return  open + nl +
+                    innerIndent + partial.join(',' + nl + innerIndent) + nl +
+                outerIndent + close;
+    }
+
+    // from https://github.com/douglascrockford/JSON-js/blob/master/json2.js
+    var escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
+    var meta = { // table of character substitutions
+        '\b': '\\b',
+        '\t': '\\t',
+        '\n': '\\n',
+        '\f': '\\f',
+        '\r': '\\r',
+        '"' : '\\"',
+        '\\': '\\\\'
+    };
+    function quote(string) {
+        // If the string contains no control characters, no quote characters, and no
+        // backslash characters, then we can safely slap some quotes around it.
+        // Otherwise we must also replace the offending characters with safe escape
+        // sequences.
+
+        escapable.lastIndex = 0;
+        if  (escapable.test(string)) {
+            return '"' + string.replace(escapable, function (a) {
+                var c = meta[a];
+                if (typeof c !== 'string') {
+                    return '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
+                }
+                return c;
+            }) + '"';
+        } else {
+            return '"' + string + '"';
+        }
+    }
+
+    function makeIndent(space, indentLevel) {
+        var indent = '';
+        for (var i = 0; i < indentLevel; i++) {
+            indent += space;
+        }
+        return indent;
+    }
+
+    exports.stringify = stringify;
+    exports.parse = JSON.parse;
+    /*********
+     * tests *
+     *********/
+    if (module && !module.parent) {
+        console.log(module.exports.stringify({
+            '"toto' : 'lol',
+            tutu : true,
+            titi : [{
+                a : 1,
+                b : 2,
+                c : 3
+            }, '->', {
+                an : 'other',
+                prop : 'erty'
+            }],
+            end : true
+        }, null, 4));
+    }
+
+}(typeof exports === 'undefined' ? this.JSONSorter = {} : exports));
