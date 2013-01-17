@@ -5,6 +5,8 @@
  *   - options
  */
 (function (exports) {
+    'use strict';
+
     var options = {
         pack_arrays   : true,
         scalars_first : true,
@@ -13,12 +15,16 @@
         space_after_colon  : ' '
     };
 
+    function typeOf(obj){
+        return Object.prototype.toString.call(obj);
+    }
+
     function sortedKeys(obj) {
         var keys = Object.keys(obj);
         if (options.scalars_first) {
             var scalars = [], composed = [];
             keys.sort().forEach(function (key) {
-                var type = Object.prototype.toString.call(obj[key]);
+                var type = typeOf(obj[key]);
                 if (type === '[object Array]' || type === '[object Object]') {
                     composed.push(key);
                 } else {
@@ -54,7 +60,7 @@
     function stringifySorted(value, space, indentLevel) {
         if (typeof value === 'object') {
             // array
-            if (Object.prototype.toString.call(value) === '[object Array]') {
+            if (typeOf(value) === '[object Array]') {
                 return stringifyArray(value, space, indentLevel);
             }
             // object
@@ -74,7 +80,7 @@
         if (space && options.align_colons) {
             colonPosition = 0;
             keys.forEach(function (key) {
-                var type = Object.prototype.toString.call(obj[key]);
+                var type = typeOf(obj[key]);
                 if (type === '[object Array]' || type === '[object Object]') {
                     return;
                 }
@@ -91,7 +97,7 @@
         keys.forEach(function (key) {
             var value = obj[key];
             key = quote(key);
-            var type = Object.prototype.toString.call(value);
+            var type = typeOf(value);
             if (type === '[object Array]' || type === '[object Object]') {
                 colonPosition = 0;
             }
