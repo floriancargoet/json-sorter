@@ -26,6 +26,36 @@ describe('JSON Sorter', function () {
         it('should handle the undefined case', function () {
             expect(JSONSorter.stringify()).toBeUndefined();
         });
+
+        it('should accept a "replacer" array', function () {
+            var obj = {
+                a : '',
+                b : '',
+                c : '',
+                d : ''
+            };
+            var str = JSONSorter.stringify(obj, ['a', 'c']);
+            str = str.replace(/[^abcd]/g, '');
+
+            expect(str).toBe('ac');
+        });
+
+        it('should accept a "replacer" function', function () {
+            var obj = {
+                a : '',
+                b : '',
+                c : '',
+                d : ''
+            };
+            function replacer(key, value) {
+                return key ? key : value;
+            }
+
+            var str = JSON.stringify(obj, replacer);
+            str = str.replace(/[^abcd]/g, '');
+
+            expect(str).toBe('aabbccdd');
+        });
     });
 
     describe('setOptions', function () {
