@@ -186,23 +186,5 @@
 
     exports.stringify = stringify;
     exports.parse = JSON.parse;
-    /*********
-     * tests *
-     *********/
-    if (module && !module.parent) {
-        console.log(module.exports.stringify({
-            '"toto' : 'lol',
-            tutu : true,
-            titi : [{
-                a : 1,
-                b : 2,
-                c : 3
-            }, '->', {
-                an : 'other',
-                prop : 'erty'
-            }],
-            end : true
-        }, null, 4));
-    }
 
 }(typeof exports === 'undefined' ? this.JSONSorter = {} : exports));
