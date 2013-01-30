@@ -1,0 +1,5 @@
+# ignore modules
+/usr/
+node_modules/
+# ignore spec files
+specs/
