@@ -50,6 +50,9 @@
     }
 
     function stringify(value, replacer, space) {
+        if (value === undefined){
+            return;
+        }
         // clean value with native JSON, apply replacer
         value = JSON.parse(JSON.stringify(value, replacer));
 
@@ -70,7 +73,7 @@
     }
 
     function stringifySorted(value, space, indentLevel) {
-        if (typeof value === 'object') {
+        if (value && typeof value === 'object') {
             // array
             if (typeOf(value) === '[object Array]') {
                 return stringifyArray(value, space, indentLevel);
