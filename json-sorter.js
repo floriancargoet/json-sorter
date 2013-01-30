@@ -8,12 +8,24 @@
     'use strict';
 
     var options = {
-        pack_arrays   : true,
-        scalars_first : true,
-        align_colons  : true,
-        space_before_colon : ' ',
-        space_after_colon  : ' '
+        // sort options
+        primitivesFirst  : false,
+        sortFunction     : null,
+        // formatting options
+        compactArrays    : false,
+        // colons options
+        alignColons      : false,
+        spaceBeforeColon : '',
+        spaceAfterColon  : ' '
     };
+
+    function setOptions (o) {
+        for (var prop in o) {
+            if (o.hasOwnProperty(prop)) {
+                options[prop] = o[prop];
+            }
+        }
+    }
 
     function typeOf(obj){
         return Object.prototype.toString.call(obj);
@@ -21,9 +33,9 @@
 
     function sortedKeys(obj) {
         var keys = Object.keys(obj);
-        if (options.scalars_first) {
+        if (options.primitivesFirst) {
             var scalars = [], composed = [];
-            keys.sort().forEach(function (key) {
+            keys.sort(options.sort).forEach(function (key) {
                 var type = typeOf(obj[key]);
                 if (type === '[object Array]' || type === '[object Object]') {
                     composed.push(key);
@@ -33,7 +45,7 @@
             });
             return scalars.concat(composed);
         } else {
-            return keys.sort();
+            return keys.sort(options.sort);
         }
     }
 
@@ -77,7 +89,7 @@
 
         var partial = [];
         var colonPosition;
-        if (space && options.align_colons) {
+        if (space && options.alignColons) {
             colonPosition = 0;
             keys.forEach(function (key) {
                 var type = typeOf(obj[key]);
@@ -108,15 +120,11 @@
     }
 
     function makeColon(l, colonPosition) {
-        var before = '';
-        if (colonPosition === 0) {
-            before = ' ';
-        } else {
-            for (var i = l; i < colonPosition; i++) {
-                before += ' ';
-            }
+        var before = options.spaceBeforeColon;
+        for (var i = l; i < colonPosition; i++) {
+            before += ' ';
         }
-        return before + ':' + options.space_after_colon;
+        return before + ':' + options.spaceAfterColon;
     }
 
     function stringifyArray(arr, space, indentLevel) {
@@ -126,10 +134,10 @@
 
         var partial = [];
         for (var i = 0, l = arr.length; i < l; i++) {
-            partial.push(stringifySorted(arr[i], space, indentLevel + (options.pack_arrays ? 0 : 1)));
+            partial.push(stringifySorted(arr[i], space, indentLevel + (options.compactArrays ? 0 : 1)));
         }
 
-        if (options.pack_arrays) {
+        if (options.compactArrays) {
             return  '[' + partial.join(', ') + ']';
         } else {
             return format('[', partial, ']', space, indentLevel);
@@ -145,16 +153,16 @@
                 outerIndent + close;
     }
 
-    // from https://github.com/douglascrockford/JSON-js/blob/master/json2.js
+    // reformated from https://github.com/douglascrockford/JSON-js/blob/master/json2.js
     var escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
     var meta = { // table of character substitutions
-        '\b': '\\b',
-        '\t': '\\t',
-        '\n': '\\n',
-        '\f': '\\f',
-        '\r': '\\r',
-        '"' : '\\"',
-        '\\': '\\\\'
+        '\b' : '\\b',
+        '\t' : '\\t',
+        '\n' : '\\n',
+        '\f' : '\\f',
+        '\r' : '\\r',
+        '"'  : '\\"',
+        '\\' : '\\\\'
     };
     function quote(string) {
         // If the string contains no control characters, no quote characters, and no
@@ -186,5 +194,6 @@
 
     exports.stringify = stringify;
     exports.parse = JSON.parse;
+    exports.setOptions = setOptions;
 
 }(typeof exports === 'undefined' ? this.JSONSorter = {} : exports));
