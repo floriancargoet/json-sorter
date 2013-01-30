@@ -3,7 +3,7 @@
   "name": "json-sorter",
   "version": "0.0.0",
   "description": "JSON.stringify() with sorting",
-  "main": "jsonsorter.js",
+  "main": "json-sorter.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
