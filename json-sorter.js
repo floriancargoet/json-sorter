@@ -7,7 +7,8 @@
 (function (exports) {
     'use strict';
 
-    var options = {
+    var options = {};
+    var defaultOptions = {
         // sort options
         primitivesFirst  : false,
         sortFunction     : null,
@@ -20,7 +21,16 @@
     };
 
     function setOptions (o) {
-        for (var prop in o) {
+        var prop;
+        // copy default options
+        for (prop in defaultOptions) {
+            if (defaultOptions.hasOwnProperty(prop)) {
+                options[prop] = defaultOptions[prop];
+            }
+        }
+
+        // overwrite with new options
+        for (prop in o) {
             if (o.hasOwnProperty(prop)) {
                 options[prop] = o[prop];
             }
