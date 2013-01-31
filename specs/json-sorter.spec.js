@@ -56,6 +56,12 @@ describe('JSON Sorter', function () {
 
             expect(str).toBe('aabbccdd');
         });
+
+        it('should indent output', function () {
+        });
+
+        it('should escape keys', function () {
+        });
     });
 
     describe('setOptions', function () {
@@ -73,6 +79,21 @@ describe('JSON Sorter', function () {
             });
 
             expect(str.lastIndexOf('primitive')).toBeLessThan(str.indexOf('object'));
+        });
+
+        it('should insert spaces before colon', function () {
+        });
+
+        it('should insert spaces after colon', function () {
+        });
+
+        it('should align colons', function () {
+        });
+
+        it('should use the provided sort function', function () {
+        });
+
+        it('should compact arrays', function () {
         });
     });
 });
