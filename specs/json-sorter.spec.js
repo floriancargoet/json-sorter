@@ -65,35 +65,61 @@ describe('JSON Sorter', function () {
     });
 
     describe('setOptions', function () {
-        it('should put primitives first', function () {
-            JSONSorter.setOptions({
-                primitivesFirst : true
+
+        describe('sorting options', function () {
+
+            it('should put primitives first', function () {
+                JSONSorter.setOptions({
+                    primitivesFirst : true
+                });
+                var str = JSONSorter.stringify({
+                    primitive1 : 1,
+                    primitive2 : true,
+                    object1    : [],
+                    object2    : {},
+                    primitive3 : '3',
+                    primitive4 : null
+                });
+
+                expect(str.lastIndexOf('primitive')).toBeLessThan(str.indexOf('object'));
             });
-            var str = JSONSorter.stringify({
-                primitive1 : 1,
-                primitive2 : true,
-                object1    : [],
-                object2    : {},
-                primitive3 : '3',
-                primitive4 : null
+
+            it('should use the provided sort function', function () {
             });
 
-            expect(str.lastIndexOf('primitive')).toBeLessThan(str.indexOf('object'));
         });
 
-        it('should insert spaces before colon', function () {
-        });
+        describe('formatting options', function () {
 
-        it('should insert spaces after colon', function () {
-        });
+            it('should insert spaces before colon', function () {
+                JSONSorter.setOptions({
+                    spaceBeforeColon : '-' // supposed to be spaces but you can't put anything
+                });
+                var str = JSONSorter.stringify({
+                    primitive1 : 1,
+                    primitive2 : true,
+                    object1    : [],
+                    object2    : {},
+                    primitive3 : '3',
+                    primitive4 : null
+                }, null, 4);
 
-        it('should align colons', function () {
-        });
+                var i = 0;
+                str.replace(/[^\-]-:/g, function() {
+                    i++;
+                });
+                expect(i).toBe(6);
+            });
 
-        it('should use the provided sort function', function () {
-        });
+            it('should insert spaces after colon', function () {
+            });
 
-        it('should compact arrays', function () {
+            it('should align colons', function () {
+            });
+
+            it('should compact arrays', function () {
+            });
+
         });
     });
 });
