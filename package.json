@@ -5,6 +5,7 @@
   "description": "JSON.stringify() with sorting",
   "main": "json-sorter.js",
   "scripts": {
+    "lint" : "jshint json-sorter.js specs",
     "test": "jasmine-node specs",
     "coverage" : "cover run jasmine-node specs; cover report html; sensible-browser cover_html/index.html"
   },
