@@ -1,6 +1,6 @@
 #JSONSorter
 
-[http://jsonsorter.org](Try it online!)
+[Try it online!](http://jsonsorter.org)
 
 ##For developers
 
