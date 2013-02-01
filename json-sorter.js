@@ -1,9 +1,3 @@
-/*jshint node:true */
-
-/* TODO:
- *   - tests
- *   - options
- */
 (function (exports) {
     'use strict';
 
