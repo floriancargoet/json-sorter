@@ -51,16 +51,22 @@ describe('JSON Sorter', function () {
                 return key ? key : value;
             }
 
-            var str = JSON.stringify(obj, replacer);
+            var str = JSONSorter.stringify(obj, replacer);
             str = str.replace(/[^abcd]/g, '');
 
             expect(str).toBe('aabbccdd');
         });
 
         it('should indent output', function () {
+            var str = JSONSorter.stringify({a : {b : ''}}, null, 4);
+            var i = str.indexOf('\n        "b"'); // 8 spaces
+            expect(i).not.toBe(-1);
         });
 
         it('should escape keys', function () {
+            var str = JSONSorter.stringify({'a"a' : ''});
+            expect(str.indexOf('"a\\"a"')).not.toBe(-1);
+            // TODO: more escape tests
         });
     });
 
@@ -85,6 +91,22 @@ describe('JSON Sorter', function () {
             });
 
             it('should use the provided sort function', function () {
+                function sortByValue(a, b) {
+                    // 'this' is the object
+                    return this[a] - this[b];
+                }
+                JSONSorter.setOptions({
+                    sortFunction : sortByValue
+                });
+                var str = JSONSorter.stringify({
+                    a : 3,
+                    b : 4,
+                    c : 1,
+                    d : 2
+                });
+                str = str.replace(/[^abcd]/g, '');
+
+                expect(str).toBe('cdab');
             });
 
         });
@@ -93,7 +115,7 @@ describe('JSON Sorter', function () {
 
             it('should insert spaces before colon', function () {
                 JSONSorter.setOptions({
-                    spaceBeforeColon : '-' // supposed to be spaces but you can't put anything
+                    spaceBeforeColon : '-' // supposed to be spaces but you can put anything
                 });
                 var str = JSONSorter.stringify({
                     primitive1 : 1,
@@ -105,19 +127,82 @@ describe('JSON Sorter', function () {
                 }, null, 4);
 
                 var i = 0;
-                str.replace(/[^\-]-:/g, function() {
+                str.replace(/[^\-]-:/g, function () {
                     i++;
                 });
                 expect(i).toBe(6);
             });
 
             it('should insert spaces after colon', function () {
+                JSONSorter.setOptions({
+                    spaceAfterColon : '-' // supposed to be spaces but you can put anything
+                });
+                var str = JSONSorter.stringify({
+                    primitive1 : 1,
+                    primitive2 : true,
+                    object1    : [],
+                    object2    : {},
+                    primitive3 : '3',
+                    primitive4 : null
+                }, null, 4);
+
+                var i = 0;
+                str.replace(/:-[^\-]/g, function () {
+                    i++;
+                });
+                expect(i).toBe(6);
             });
 
             it('should align colons', function () {
+                JSONSorter.setOptions({
+                    alignColons : true
+                });
+                var str = JSONSorter.stringify({
+                    a    : '',
+                    bb   : '',
+                    ccc  : '',
+                    dddd : ''
+                }, null, 4);
+
+                expect(str).toBe('{\n' +
+                '    "a"    : "",\n' +
+                '    "bb"   : "",\n' +
+                '    "ccc"  : "",\n' +
+                '    "dddd" : ""\n' +
+                '}');
+
             });
 
             it('should compact arrays', function () {
+                var str;
+                // normal formatting
+                JSONSorter.setOptions();
+
+                str = JSONSorter.stringify({
+                    array : [1, 2, 3]
+                }, null, 4);
+
+                expect(str).toBe('{\n' +
+                '    "array": [\n' +
+                '        1,\n' +
+                '        2,\n' +
+                '        3\n' +
+                '    ]\n' +
+                '}');
+
+                /// compact formatting
+                JSONSorter.setOptions({
+                    compactArrays : true
+                });
+
+                str = JSONSorter.stringify({
+                    array : [1, 2, 3]
+                }, null, 4);
+
+                expect(str).toBe('{\n' +
+                '    "array": [1, 2, 3]\n' +
+                '}');
+
             });
 
         });

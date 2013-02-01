@@ -20,7 +20,7 @@
         spaceAfterColon  : ' '
     };
 
-    function setOptions (o) {
+    function setOptions(o) {
         var prop;
         // copy default options
         for (prop in defaultOptions) {
@@ -30,22 +30,28 @@
         }
 
         // overwrite with new options
-        for (prop in o) {
-            if (o.hasOwnProperty(prop)) {
-                options[prop] = o[prop];
+        if (o) {
+            for (prop in o) {
+                if (o.hasOwnProperty(prop)) {
+                    options[prop] = o[prop];
+                }
             }
         }
     }
 
-    function typeOf(obj){
+    function typeOf(obj) {
         return Object.prototype.toString.call(obj);
     }
 
     function sortedKeys(obj) {
         var keys = Object.keys(obj);
+        var sorter = options.sortFunction;
+        if (sorter) {
+            sorter = sorter.bind(obj);
+        }
         if (options.primitivesFirst) {
             var scalars = [], composed = [];
-            keys.sort(options.sort).forEach(function (key) {
+            keys.sort(sorter).forEach(function (key) {
                 var type = typeOf(obj[key]);
                 if (type === '[object Array]' || type === '[object Object]') {
                     composed.push(key);
@@ -55,12 +61,12 @@
             });
             return scalars.concat(composed);
         } else {
-            return keys.sort(options.sort);
+            return keys.sort(sorter);
         }
     }
 
     function stringify(value, replacer, space) {
-        if (value === undefined){
+        if (value === undefined) {
             return;
         }
         // clean value with native JSON, apply replacer
@@ -184,7 +190,7 @@
         // sequences.
 
         escapable.lastIndex = 0;
-        if  (escapable.test(string)) {
+        if (escapable.test(string)) {
             return '"' + string.replace(escapable, function (a) {
                 var c = meta[a];
                 if (typeof c !== 'string') {
