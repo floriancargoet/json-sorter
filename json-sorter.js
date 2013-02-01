@@ -115,7 +115,6 @@
                     colonPosition = key.length;
                 }
             });
-            colonPosition++;
         } else {
             colonPosition = 0; // disabled
         }

@@ -165,10 +165,10 @@ describe('JSON Sorter', function () {
                 }, null, 4);
 
                 expect(str).toBe('{\n' +
-                '    "a"    : "",\n' +
-                '    "bb"   : "",\n' +
-                '    "ccc"  : "",\n' +
-                '    "dddd" : ""\n' +
+                '    "a"   : "",\n' +
+                '    "bb"  : "",\n' +
+                '    "ccc" : "",\n' +
+                '    "dddd": ""\n' +
                 '}');
 
             });
