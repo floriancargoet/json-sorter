@@ -204,8 +204,34 @@
         return indent;
     }
 
-    exports.stringify = stringify;
-    exports.parse = JSON.parse;
+    // exports interface
+    exports.stringify  = stringify;
+    exports.parse      = JSON.parse;
     exports.setOptions = setOptions;
+    
+    // initialize options
+    setOptions();
 
 }(typeof exports === 'undefined' ? this.JSONSorter = {} : exports));
+
+
+// when called via CLI
+if (typeof module !== 'undefined' && !module.parent) {
+    var fs = require('fs');
+    var content = fs.readFileSync(process.argv[2], 'utf8');
+    var obj = JSON.parse(content);
+
+    exports.setOptions({
+        // sort options
+        primitivesFirst  : true,
+        // formatting options
+        compactArrays    : true,
+        // colons options
+        alignColons      : true,
+        spaceBeforeColon : ' ',
+        spaceAfterColon  : ' '
+    });
+
+    var formatted = exports.stringify(obj, null, 4);
+    console.log(formatted);
+}
